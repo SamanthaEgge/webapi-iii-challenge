@@ -19,6 +19,13 @@ router.put('/:id', (req, res) => {
 
 });
 
+//////
+// router.post('/:id/posts', (request, response) => {
+
+// });
+
+
+
 // custom middleware
 
 function validatePostId(req, res, next) {

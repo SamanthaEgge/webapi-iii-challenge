@@ -16,7 +16,7 @@ router.get('/', (request, response) => {
 })
 
 /// needs middleware 
-router.get('/:id', validateUser, (request, response) => {
+router.get('/:id', validateUserId, (request, response) => {
   const id = request.params.id
 
   db.getById(id)
@@ -29,7 +29,7 @@ router.get('/:id', validateUser, (request, response) => {
     })
 });
 
-router.get('/:id/posts', (request, response) => {
+router.get('/:id/posts', validateUserId, (request, response) => {
   const id = request.params.id
 
   db.getUserPosts(id)
@@ -42,23 +42,19 @@ router.get('/:id/posts', (request, response) => {
     })
 });
 
-router.post('/', (request, response) => {
+router.post('/', validateUser, (request, response) => {
   const newUser = request.body
   console.log(newUser)
 
-  if (newUser) {
-    db.insert(newUser)
-    .then(user => {
-      console.log(user)
-      response.status(202).json(user)
-    .catch(error => {
-      console.log(error)
-      response.status(500).json({ message: 'Error accessing the server'})
+  db.insert(newUser)
+  .then(user => {
+    console.log(user)
+    response.status(202).json(user)
+  .catch(error => {
+    console.log(error)
+    response.status(500).json({ message: 'Error accessing the server'})
+  })
     })
-    })
-  } else {
-    response.status(400).json({ message: 'Please enter a name when creating a new user'})
-  }
 });
 
 
@@ -67,53 +63,32 @@ router.post('/', (request, response) => {
 
 // });
 
-router.delete('/:id', (request, response) => {
+router.delete('/:id', validateUserId, (request, response) => {
   const id = request.params.id
-  db.getById(id)
+
+  db.remove(id)
     .then(user => {
-      if (id) {
-        console.log(user)
-        db.remove(id)
-          .then(user => {
-            console.log(user)
-            response.status(200).json({ message: `User with ${id} has been successfully deleted`})
-          })
-          .catch(error => {
-            console.log(error)
-            response.status(500).json({ message: 'Error reaching the server'})
-          })
-      } else {
-        response.status(404).json({ message: 'This user does not exist'})
-      }
+      console.log(user)
+      response.status(200).json({ message: `User with ${id} has been successfully deleted`})
     })
     .catch(error => {
       console.log(error)
-      response.status(500).json({ message: 'Error reaching the server' })
+      response.status(500).json({ message: 'Error reaching the server'})
     })
 });
 
-router.put('/:id', (request, response) => {
+router.put('/:id', validateUserId, (request, response) => {
   const id = request.params.id
-  db.getById(id)
+  const updateName = request.body
+
+  db.update(id, updateName)
     .then(user => {
-      if (id) {
-        console.log(user)
-        db.update(id)
-          .then(user => {
-            console.log(user)
-            response.status(200).json({ message: `User with ${id} has been successfully updated`})
-          })
-          .catch(error => {
-            console.log(error)
-            response.status(500).json({ message: 'Error reaching the server'})
-          })
-      } else {
-        response.status(404).json({ message: 'This user does not exist'})
-      }
+      console.log(user)
+      response.status(200).json({ message: `User with ${id} has been successfully updated`})
     })
     .catch(error => {
       console.log(error)
-      response.status(500).json({ message: 'Error reaching the server' })
+      response.status(500).json({ message: 'Error reaching the server'})
     })
 });
 
@@ -121,11 +96,30 @@ router.put('/:id', (request, response) => {
 //custom middleware
 
 function validateUserId(request, response, next) {
+  const id = request.params.id
 
+  db.getById(id)
+  .then(user => {
+    if (user) {
+      next()
+    } else {
+      response.status(404).json({ message: `There is no user at ${id}`})
+    }
+  })
+  .catch(error => {
+    console.log(error)
+    response.status(500).json({ message: 'Error accessing the server'})
+  })
 };
 
 function validateUser(request, response, next) {
-
+  const newUser = request.body
+  if (newUser) {
+    console.log('Create user request contains name')
+    next()
+  } else {
+    response.status(400).json({ message: 'Please enter a name when creating a new user'})
+  }
 };
 
 function validatePost(request, response, next) {
