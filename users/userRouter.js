@@ -1,46 +1,48 @@
-const express = 'express';
+const express = require('express');
 
 const router = express.Router();
+const db = require('./userDb')
 
-router.post('/', (req, res) => {
-
-});
-
-router.post('/:id/posts', (req, res) => {
+//// GET Routes for users
+router.get('/', (request, response) => {
 
 });
 
-router.get('/', (req, res) => {
+router.get('/:id', (request, response) => {
 
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id/posts', (request, response) => {
 
 });
 
-router.get('/:id/posts', (req, res) => {
+router.post('/', (request, response) => {
 
 });
 
-router.delete('/:id', (req, res) => {
+router.post('/:id/posts', (request, response) => {
 
 });
 
-router.put('/:id', (req, res) => {
+router.delete('/:id', (request, response) => {
+
+});
+
+router.put('/:id', (request, response) => {
 
 });
 
 //custom middleware
 
-function validateUserId(req, res, next) {
+function validateUserId(request, response, next) {
 
 };
 
-function validateUser(req, res, next) {
+function validateUser(request, response, next) {
 
 };
 
-function validatePost(req, res, next) {
+function validatePost(request, response, next) {
 
 };
 

@@ -1,4 +1,6 @@
-const express = 'express';
+
+const express = require('express');
+const userRoutes = require('./users/userRouter')
 
 const server = express();
 
@@ -8,8 +10,13 @@ server.get('/', (req, res) => {
 
 //custom middleware
 
-function logger(req, res, next) {
-
+function logger(request, response, next) {
+  console.log(request)
+  console.log(response)
+  console.log(Date.now())
+  next()
 };
+
+server.use('/users', userRoutes)
 
 module.exports = server;
