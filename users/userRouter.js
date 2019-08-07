@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const db = require('./userDb')
+const postDB = require('../posts/postDb')
 
 //// GET Routes for users
 router.get('/', (request, response) => {
@@ -57,12 +58,6 @@ router.post('/', validateUser, (request, response) => {
     })
 });
 
-
-    //// Probably belongs in postRouter ???
-// router.post('/:id/posts', (request, response) => {
-
-// });
-
 router.delete('/:id', validateUserId, (request, response) => {
   const id = request.params.id
 
@@ -92,6 +87,21 @@ router.put('/:id', validateUserId, (request, response) => {
     })
 });
 
+router.post('/:id/posts', validatePost, (request, response) => {
+  const newPost = request.body
+  const id = request.params.id
+
+  postDB.insert(newPost)
+    .then(post => {
+      console.log(post)
+      response.status(202).json({ message: `Created a new post for ${id}`})
+    })
+    .catch(error => {
+      console.log(error)
+      response.status(500).json({ message: 'failure to communicate with server' })
+    })
+});
+
 
 //custom middleware
 
@@ -113,8 +123,9 @@ function validateUserId(request, response, next) {
 };
 
 function validateUser(request, response, next) {
-  const newUser = request.body
-  if (newUser) {
+  let newUser = request.body
+  console.log(request.body)
+  if (newUser && newUser.name) {
     console.log('Create user request contains name')
     next()
   } else {
@@ -123,6 +134,18 @@ function validateUser(request, response, next) {
 };
 
 function validatePost(request, response, next) {
+  const newPost = request.body
+  console.log(request.body)
+  if (newPost) {
+    if (newPost.text) {
+      next()
+      console.log('New Post is on body and contains text')
+    } else {
+      response.status(400).json({ message: 'The request body does not contain required variable text' })
+    }
+  } else {
+    response.status(400).json({ message: 'There is no request body' })
+  }
 
 };
 
